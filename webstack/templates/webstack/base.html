@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{% static 'webstack/assets/css/xenon-components.css' %}">
     <link rel="stylesheet" href="{% static 'webstack/assets/css/xenon-skins.css' %}">
     <link rel="stylesheet" href="{% static 'webstack/assets/css/nav.css' %}">
+    <!-- 替换 Font Awesome 链接为 Bootstrap Icons CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
     <style>
         .sidebar-menu {
@@ -59,6 +61,78 @@
             .sidebar-menu.collapsed {
                 width: 66px;
             }
+
+            .search-container {
+                text-align: center;
+                margin: 20px 0;
+            }
+
+            .search-dropdown {
+                display: inline-block;
+                position: relative;
+            }
+
+            .dropdown-toggle {
+                background-color: #f8f8f8;
+                border: 1px solid #ccc;
+                border-radius: 25px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+
+            .dropdown-toggle img {
+                height: 20px;
+                margin-right: 5px;
+            }
+
+            .dropdown-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: white;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+
+            .dropdown-menu li {
+                list-style: none;
+            }
+
+            .dropdown-menu li a {
+                display: block;
+                padding: 5px 10px;
+                color: #333;
+                text-decoration: none;
+            }
+
+            .dropdown-menu li a:hover {
+                background-color: #f0f0f0;
+            }
+
+            .search-input {
+                width: 300px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 25px;
+                margin-left: 10px;
+            }
+
+            .search-button {
+                background-color: #337ab7;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                margin-left: 10px;
+                cursor: pointer;
+            }
+
+            .search-button i {
+                font-size: 16px;
+            }
+
         }
     </style>
     {% block top-file %}{% endblock %}
@@ -128,6 +202,27 @@
                 {% block navbar-list %}{% endblock %}
             </ul>
         </nav>
+        <!-- 搜索框 -->
+        <div class="search-container">
+            <form id="search-form" action="https://www.google.com/search" method="GET" target="_blank">
+                <div class="search-dropdown">
+                    <button id="selected-engine" class="dropdown-toggle" type="button">
+                        <img src="{% static 'icons/google.png' %}" alt="Google" id="engine-icon">
+                    </button>
+                    <ul class="dropdown-menu" id="engine-menu">
+                        <li><a href="#" data-action="https://www.google.com/search"
+                               data-icon="{% static 'icons/google.png' %}" data-placeholder="使用Google搜索">Google</a>
+                        </li>
+                        <li><a href="#" data-action="https://www.baidu.com/s" data-icon="{% static 'icons/baidu.png' %}"
+                               data-placeholder="使用Baidu搜索">Baidu</a></li>
+                        <li><a href="#" data-action="https://www.bing.com/search"
+                               data-icon="{% static 'icons/bing.png' %}" data-placeholder="使用Bing搜索">Bing</a></li>
+                    </ul>
+                </div>
+                <input type="text" name="q" placeholder="使用Google搜索" class="search-input" id="search-input">
+                <button type="submit" class="search-button"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
 
         {% for menu in first_menus %}
             {% for second_menu in menu.second_menus.all %}
@@ -254,6 +349,39 @@
 <!-- JavaScripts initializations and stuff -->
 <script src="{% static 'webstack/assets/js/xenon-custom.js' %}"></script>
 <script src="{% static 'webstack/assets/js/lozad.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var selectedEngine = document.getElementById('selected-engine');
+        var engineMenu = document.getElementById('engine-menu');
+        var searchForm = document.getElementById('search-form');
+        var engineIcon = document.getElementById('engine-icon');
+        var searchInput = document.getElementById('search-input');
+
+        selectedEngine.addEventListener('click', function () {
+            engineMenu.style.display = engineMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        engineMenu.querySelectorAll('a').forEach(function (item) {
+            item.addEventListener('click', function (event) {
+                event.preventDefault();
+                var action = item.getAttribute('data-action');
+                var icon = item.getAttribute('data-icon');
+                var placeholder = item.getAttribute('data-placeholder');
+                searchForm.action = action;
+                engineIcon.src = icon;
+                searchInput.placeholder = placeholder;
+                engineMenu.style.display = 'none';
+            });
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!selectedEngine.contains(event.target) && !engineMenu.contains(event.target)) {
+                engineMenu.style.display = 'none';
+            }
+        });
+    });
+    
+</script>
 </body>
 
 </html>
